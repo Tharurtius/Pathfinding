@@ -8,8 +8,7 @@ public class AIMovement : MonoBehaviour
     public float chaseDistance;
     public GameObject[] waypoints;
     public int waypointIndex = 0;
-    //public GameObject position0;
-    //public GameObject position1;
+    public bool chasedPlayer = false;
     public float speed = 1.5f;
     public float minGoalDistance = 0.1f;
     // Update is called once per frame
@@ -19,9 +18,15 @@ public class AIMovement : MonoBehaviour
         {
             //move towards the player
             AIMoveTowards(player);
+            chasedPlayer = true;
         }
         else
         {
+            if (chasedPlayer)//if recently chased player
+            {
+                chasedPlayer = false;
+                LowestDistance();
+            }
             WaypointUpdate();
             //moves towards our waypoints
             AIMoveTowards(waypoints[waypointIndex].transform);
@@ -50,5 +55,20 @@ public class AIMovement : MonoBehaviour
             directionToGoal.Normalize();
             transform.position += (Vector3)directionToGoal * speed * Time.deltaTime;
         }
+    }
+    //loop to find lowest distance index
+    private void LowestDistance()
+    {
+        float lowestDistance = 99999999f;
+        int lowestIndex = 0;
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            if (Vector2.Distance(player.position, waypoints[i].transform.position) < lowestDistance)
+            {
+                lowestDistance = Vector2.Distance(player.position, waypoints[i].transform.position);
+                lowestIndex = i;
+            }
+        }
+        waypointIndex = lowestIndex;
     }
 }
