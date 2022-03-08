@@ -6,46 +6,51 @@ public class AIMovement : MonoBehaviour
 {
     public Transform player;
     public float chaseDistance;
-    public GameObject[] waypoints;
+    //public Transform[] waypoints;
+    public List<GameObject> waypoints;
+    public GameObject waypointPrefab;
+    public Transform[] bushPosition;
     public int waypointIndex = 0;
     public bool chasedPlayer = false;
     public float speed = 1.5f;
     public float minGoalDistance = 0.1f;
     // Update is called once per frame
-    void Update()
-    {
-        if (Vector2.Distance(transform.position, player.position) < chaseDistance)
-        {
-            //move towards the player
-            AIMoveTowards(player);
-            chasedPlayer = true;
-        }
-        else
-        {
-            if (chasedPlayer)//if recently chased player
-            {
-                chasedPlayer = false;
-                LowestDistance();
-            }
-            WaypointUpdate();
-            //moves towards our waypoints
-            AIMoveTowards(waypoints[waypointIndex].transform);
-        }
-    }
+    //void Update()
+    //{
+    //    if (Vector2.Distance(transform.position, player.position) < chaseDistance)
+    //    {
+    //        //move towards the player
+    //        AIMoveTowards(player);
+    //        chasedPlayer = true;
+    //    }
+    //    else
+    //    {
+    //        if (chasedPlayer)//if recently chased player
+    //        {
+    //            chasedPlayer = false;
+    //            LowestDistance();
+    //        }
+    //        WaypointUpdate();
+    //        //moves towards our waypoints
+    //        AIMoveTowards(waypoints[waypointIndex].transform);
+    //    }
+    //}
 
-    private void WaypointUpdate()
+    public void WaypointUpdate()
     {
         //if we are near the goal
         if (Vector2.Distance(transform.position, waypoints[waypointIndex].transform.position) < minGoalDistance)
         {
-            waypointIndex++;
-            if (waypointIndex >= waypoints.Length)
+            Destroy(waypoints[waypointIndex]);
+            waypoints.Remove(waypoints[waypointIndex]);
+            //waypointIndex++;
+            if (waypointIndex >= waypoints.Count)
             {
                 waypointIndex = 0;
             }
         }
     }
-    private void AIMoveTowards(Transform goal)
+    public void AIMoveTowards(Transform goal)
     {
         //if we are near the goal
         Vector2 AIPosition = transform.position;
@@ -56,16 +61,30 @@ public class AIMovement : MonoBehaviour
             transform.position += (Vector3)directionToGoal * speed * Time.deltaTime;
         }
     }
-    //loop to find lowest distance index
-    private void LowestDistance()
+    public void NewWaypoint()
     {
-        float lowestDistance = 99999999f;
+        float x = Random.Range(-5, 5);
+        float y = Random.Range(-5, 5);
+        int bushIndex = Random.Range(0, 1);
+        x += bushPosition[bushIndex].position.x;
+        y += bushPosition[bushIndex].position.y;
+
+        GameObject newPoint = Instantiate(waypointPrefab, new Vector2(x, y), Quaternion.identity);
+
+        waypoints.Add(newPoint);
+    }
+    //loop to find lowest distance index
+    public void LowestDistance()
+    {
+        float lowestDistance = float.PositiveInfinity;
         int lowestIndex = 0;
-        for (int i = 0; i < waypoints.Length; i++)
+        float distance;
+        for (int i = 0; i < waypoints.Count; i++)
         {
-            if (Vector2.Distance(player.position, waypoints[i].transform.position) < lowestDistance)
+            distance = Vector2.Distance(player.position, waypoints[i].transform.position);
+            if (distance < lowestDistance)
             {
-                lowestDistance = Vector2.Distance(player.position, waypoints[i].transform.position);
+                lowestDistance = distance;
                 lowestIndex = i;
             }
         }
