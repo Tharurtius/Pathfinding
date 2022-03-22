@@ -44,7 +44,7 @@ public class StateMachine : MonoBehaviour
     }
     private IEnumerator AttackState()
     {
-        Debug.Log("Attack: Enter");
+        //Debug.Log("Attack: Enter");
         m_spriteRenderer.color = Color.red;
         while (currentState == State.Attack)
         {
@@ -52,34 +52,41 @@ public class StateMachine : MonoBehaviour
             aiMovement.AIMoveTowards(aiMovement.player);
             if (Vector2.Distance(aiMovement.player.position, aiMovement.transform.position) > aiMovement.chaseDistance)
             {
-                aiMovement.LowestDistance();
+                //aiMovement.LowestDistance();
                 currentState = State.BerryPicking;
             }
             yield return null;
         }
-        Debug.Log("Attack: Exit");
+        //Debug.Log("Attack: Exit");
         NextState();
     }
     private IEnumerator DefenceState()
     {
-        Debug.Log("Defence: Enter");
+        int x = Random.Range(1, 7);
+        //Debug.Log("Defence: Enter");
         m_spriteRenderer.color = Color.green;
+        while (Vector2.Distance(transform.position, Vector2.zero) > aiMovement.minGoalDistance)
+        {
+            aiMovement.AIMoveTowardsClone(Vector2.zero);
+            yield return null;
+        }
+        yield return new WaitForSeconds(5);
         while (currentState == State.Defence)
         {
             //Debug.Log("Currently Defending");
             aiMovement.NewWaypoint();
-            yield return new WaitForSeconds(2);
-            if (aiMovement.waypoints.Count >= 3)
+            if (aiMovement.waypoints.Count >= x)
             {
                 currentState = State.BerryPicking;
             }
         }
-        Debug.Log("Defence: Exit");
+        //Debug.Log("Defence: Exit");
         NextState();
     }
     private IEnumerator RunAwayState()
     {
         Debug.Log("RunAway: Enter");
+        m_spriteRenderer.color = Color.yellow;
         while (currentState == State.RunAway)
         {
             Debug.Log("Currently Running Away");
@@ -90,11 +97,11 @@ public class StateMachine : MonoBehaviour
     }
     private IEnumerator BerryPickingState()
     {
-        Debug.Log("BerryPicking: Enter");
+        //Debug.Log("BerryPicking: Enter");
+        aiMovement.LowestDistance();
         m_spriteRenderer.color = Color.blue;
         while (currentState == State.BerryPicking)
         {
-
             //Debug.Log("Currently Picking Berries");
             aiMovement.WaypointUpdate();
             if (aiMovement.waypoints.Count > 0)
@@ -112,7 +119,7 @@ public class StateMachine : MonoBehaviour
             }
             yield return null;
         }
-        Debug.Log("BerryPicking: Exit");
+        //Debug.Log("BerryPicking: Exit");
         NextState();
     }
 }

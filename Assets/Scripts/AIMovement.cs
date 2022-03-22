@@ -43,11 +43,12 @@ public class AIMovement : MonoBehaviour
         {
             Destroy(waypoints[waypointIndex]);
             waypoints.Remove(waypoints[waypointIndex]);
+            LowestDistance();//find closest waypoint
             //waypointIndex++;
-            if (waypointIndex >= waypoints.Count)
+            /*if (waypointIndex >= waypoints.Count)//probably dont need this anymore
             {
                 waypointIndex = 0;
-            }
+            }*/
         }
     }
     public void AIMoveTowards(Transform goal)
@@ -81,7 +82,7 @@ public class AIMovement : MonoBehaviour
         float distance;
         for (int i = 0; i < waypoints.Count; i++)
         {
-            distance = Vector2.Distance(player.position, waypoints[i].transform.position);
+            distance = Vector2.Distance(transform.position, waypoints[i].transform.position);
             if (distance < lowestDistance)
             {
                 lowestDistance = distance;
@@ -89,5 +90,16 @@ public class AIMovement : MonoBehaviour
             }
         }
         waypointIndex = lowestIndex;
+    }
+    public void AIMoveTowardsClone(Vector2 goal) //cannot move to position without a transform type goal, kinda dodgy but it'll probably work
+    {
+        //if we are near the goal
+        Vector2 AIPosition = transform.position;
+        if (Vector2.Distance(AIPosition, goal) > minGoalDistance)
+        {
+            Vector2 directionToGoal = ((Vector3)goal - transform.position);
+            directionToGoal.Normalize();
+            transform.position += (Vector3)directionToGoal * speed * Time.deltaTime;
+        }
     }
 }
